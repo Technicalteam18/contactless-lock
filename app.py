@@ -8,6 +8,7 @@ db=client['contactless-lock']
 collection=db['iotdata-test']
 alertsCollection=db['alerts']
 devicesCollection=db['devices']
+door=db['door']
 
 api=Flask(__name__)
 CORS(api)
