@@ -109,6 +109,72 @@ def get_devices():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@api.route('/get-door-status', methods=['GET'])
+def get_door_status():
+    """Fetch the status of a door based on the door_id."""
+    try:
+        door_id = request.args.get('door_id', default=1, type=int)  # Default to door_id = 1 if not specified
+
+        # Find the door status from the database
+        door_data = door.find_one({"door_id": door_id})
+
+        if not door_data:
+            return jsonify({"error": f"Door with ID {door_id} not found."}), 404
+
+        # Return door status
+        return jsonify({
+            "door_id": door_data.get("door_id"),
+            "status": door_data.get("status"),
+            "timestamp": door_data.get("timestamp")
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/set-door-open', methods=['POST'])
+def set_door_open():
+    """Set the status of the door to 'open'."""
+    try:
+        # Get door_id from the request body (or default to door_id=1)
+        data = request.json
+        door_id = data.get('door_id', 1)
+
+        # Find the door in the database
+        door_data = door.find_one({"door_id": door_id})
+
+        if not door_data:
+            return jsonify({"error": f"Door with ID {door_id} not found."}), 404
+
+        # Update the door status to "open"
+        door.update_one({"door_id": door_id}, {"$set": {"status": "open", "timestamp": datetime.utcnow()}})
+
+        return jsonify({"message": f"Door {door_id} status set to 'open'."}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+ @api.route('/set-door-close', methods=['POST'])
+def set_door_close():
+    """Set the status of the door to 'close'."""
+    try:
+        # Get door_id from the request body (or default to door_id=1)
+        data = request.json
+        door_id = data.get('door_id', 1)
+
+        # Find the door in the database
+        door_data = door.find_one({"door_id": door_id})
+
+        if not door_data:
+            return jsonify({"error": f"Door with ID {door_id} not found."}), 404
+
+        # Update the door status to "close"
+        door.update_one({"door_id": door_id}, {"$set": {"status": "close", "timestamp": datetime.utcnow()}})
+
+        return jsonify({"message": f"Door {door_id} status set to 'close'."}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == '__main__':
     app.run(
